@@ -4,6 +4,7 @@ import { test as testBase } from '@playwright/test';
 import * as test262 from '../resources/test262.json';
 
 interface RunnerPageFunctions {
+    getSetupScript(): string;
     getHarnessScripts(): string[];
     getTestHtml(): string;
 }
@@ -16,17 +17,20 @@ interface TestFixture {
 const testRunnerInMemoryDomain = 'playwright.test262.runner';
 const runnerUrl = `https://${testRunnerInMemoryDomain}/test262.html`;
 
-export const testList = Object.keys(test262).filter(test => test.startsWith('test/'));
+function notImplemented<T>(name: string): () => T {
+    return () => {
+        throw new Error(`Not implemented: ${name}`);
+    };
+}
+
+export const testList = Object.keys(test262).filter(test => test.startsWith('test/built-ins/Object/prototype/'));
 export const test = testBase.extend<TestFixture>({
     runnerUrl: async ({ }, use) => use(runnerUrl),
     runnerPage: async ({ }, use) => {
         await use({
-            getHarnessScripts() {
-                throw new Error('override getHarnessScripts within the test code');
-            },
-            getTestHtml() {
-                throw new Error('override getTestHtml within the test code');
-            },
+            getSetupScript: notImplemented('getSetupScript'),
+            getHarnessScripts: notImplemented('getHarnessScripts'),
+            getTestHtml: notImplemented('getTestHtml'),
         });
     },
     contextOptions: async ({ contextOptions }, use) => {
@@ -40,6 +44,7 @@ export const test = testBase.extend<TestFixture>({
             <head>
                 <meta charset='utf-8'>
                 <title>Playwright test262 Runner</title>
+                ${runnerPage.getSetupScript()}
                 ${runnerPage.getHarnessScripts().join('\n')}
             </head>
             <body>
