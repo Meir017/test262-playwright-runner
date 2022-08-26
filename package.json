@@ -1,0 +1,22 @@
+{
+  "name": "test262-web-runner",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "playwright test",
+    "setup": "node scripts/generate-test262.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@playwright/test": "^1.25.1",
+    "yaml": "^2.1.1"
+  },
+  "devDependencies": {
+    "jszip": "^3.10.1"
+  },
+  "config": {
+    "test262CommitHash": "8dcc0e1955b1753271ed0812d1a2a15a23de069b"
+  }
+}
