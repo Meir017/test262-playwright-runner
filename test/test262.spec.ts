@@ -21,6 +21,7 @@ test.describe.parallel('test262', () => {
     for (const testCase of testList) {
         test(testCase, async ({ page, runnerUrl, runnerPage }) => {
             const testDifinition = parseTestDefinition(testCase);
+            runnerPage.getSetupScript = () => ``;
             runnerPage.getHarnessScripts = () => testDifinition.harness;
             runnerPage.getTestHtml = () => `
             <script>${testDifinition.code}</script>
@@ -40,13 +41,13 @@ test.describe.parallel('test262', () => {
                 ]),
                 page.goto(runnerUrl)
             ]);
-            expect(output.passed, output.message + '\nstack:\n' + output.stack).toBeTruthy();
+            expect(output.passed, output.message + '\nstack:\n' + output.stack + '\n\n\ntest spec:\n' + testDifinition.raw).toBeTruthy();
         });
     }
 });
 
 function parseTestDefinition(testCase) {
-    const testDifinition = test262[testCase];
+    const testDifinition = test262[testCase] as string;
 
     const specStart = '/*---';
     const specEnd = '---*/';
@@ -54,9 +55,10 @@ function parseTestDefinition(testCase) {
     const testSpec = testDifinition.substring(testDifinition.indexOf(specStart) + specStart.length, testDifinition.indexOf(specEnd));
     const spec: TestSpec = YAML.parse(testSpec);
 
-    const dependencies = ['assert.js', ...(spec.includes || [])]
+    const dependencies = ['assert.js', 'sta.js', ...(spec.includes || [])]
 
     return {
+        raw: testDifinition,
         harness: dependencies.map(dependency => `<script id="harness/${dependency}">${test262['harness/' + dependency]}</script>`),
         code: testDifinition.substring(startOfCode)
     }
