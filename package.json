@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test --config test/playwright.config.ts",
     "setup": "node scripts/generate-test262.mjs"
   },
   "keywords": [],
