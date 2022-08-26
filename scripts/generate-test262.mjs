@@ -4,8 +4,13 @@ import * as fs from 'fs';
 import { default as packageJson } from '../package.json' assert { type: 'json' };
 const { test262CommitHash } = packageJson.config;
 
-const outputFile = path.resolve(process.cwd(), 'resources', 'test262.json');
-const zipFile = path.resolve(process.cwd(), 'resources', 'test262.zip');
+const resourcesDir = path.resolve(process.cwd(), 'resources');
+if (!fs.existsSync(resourcesDir)) {
+    fs.mkdirSync(resourcesDir);
+}
+
+const outputFile = path.resolve(resourcesDir, 'test262.json');
+const zipFile = path.resolve(resourcesDir, 'test262.zip');
 
 if (!fs.existsSync(zipFile)) {
     console.log(`Downloading test262@${test262CommitHash}...`);
