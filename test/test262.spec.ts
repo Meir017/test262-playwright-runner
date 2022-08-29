@@ -21,6 +21,11 @@ test.describe.parallel('test262', () => {
     for (const testCase of testList) {
         test(testCase, async ({ page, runnerUrl, runnerPage }) => {
             const testDifinition = parseTestDefinition(testCase);
+            test.info().annotations.push({
+                type: 'test spec',
+                description: testDifinition.raw,
+            });
+
             runnerPage.getSetupScript = () => ``;
             runnerPage.getHarnessScripts = () => testDifinition.harness;
             runnerPage.getTestHtml = () => `
@@ -41,7 +46,7 @@ test.describe.parallel('test262', () => {
                 ]),
                 page.goto(runnerUrl)
             ]);
-            expect(output.passed, output.message + '\nstack:\n' + output.stack + '\n\n\ntest spec:\n' + testDifinition.raw).toBeTruthy();
+            expect(output.passed, output.message + '\nstack:\n' + output.stack).toBeTruthy();
         });
     }
 });
