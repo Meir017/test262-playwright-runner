@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        browser: [chromium, firefix, webkit]
+        browser: [chromium, firefox, webkit]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
