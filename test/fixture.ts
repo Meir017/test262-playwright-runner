@@ -23,7 +23,7 @@ function notImplemented<T>(name: string): () => T {
     };
 }
 
-export const testList = Object.keys(test262).filter(test => test.startsWith('test/built-ins/Object/prototype/'));
+export const testList = Object.keys(test262).filter(test => test.startsWith('test/built-ins/Function/length'));
 export const test = testBase.extend<TestFixture>({
     runnerUrl: async ({ }, use) => use(runnerUrl),
     runnerPage: async ({ }, use) => {

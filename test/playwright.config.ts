@@ -3,7 +3,7 @@ import { type PlaywrightTestConfig, devices } from "@playwright/test";
 const config: PlaywrightTestConfig = {
     fullyParallel: true,
     reporter: [
-        ['html', { outputDir: 'test-results' }],
+        ['html'],
     ],
     timeout: 1000 * 60 * 60,
     projects: [
