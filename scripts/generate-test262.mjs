@@ -12,14 +12,16 @@ if (!fs.existsSync(resourcesDir)) {
 const outputFile = path.resolve(resourcesDir, 'test262.json');
 const zipFile = path.resolve(resourcesDir, 'test262.zip');
 
-if (!fs.existsSync(zipFile)) {
-    console.log(`Downloading test262@${test262CommitHash}...`);
-    const response = await fetch(`https://github.com/tc39/test262/archive/${test262CommitHash}.zip`);
-    console.info('Writing test262.zip...');
-    await fs.promises.writeFile(zipFile, Buffer.from(await response.arrayBuffer()));
-
-    console.info('Completed Writing test262.zip');
+if (fs.existsSync(zipFile)) {
+    await fs.promises.unlink(zipFile);
 }
+
+console.log(`Downloading test262@${test262CommitHash}...`);
+const response = await fetch(`https://github.com/tc39/test262/archive/${test262CommitHash}.zip`);
+console.info('Writing test262.zip...');
+await fs.promises.writeFile(zipFile, Buffer.from(await response.arrayBuffer()));
+
+console.info('Completed Writing test262.zip');
 
 const test262Buffer = await fs.promises.readFile(zipFile);
 
