@@ -7,6 +7,9 @@ on:
 jobs:
   test:
     timeout-minutes: 60
+    strategy:
+      matrix:
+        browser: [chromium, firefix, webkit]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -18,7 +21,7 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npm test
+      run: npm test -- --project=${{ matrix.browser }}
     - uses: actions/upload-artifact@v2
       if: always()
       with:
