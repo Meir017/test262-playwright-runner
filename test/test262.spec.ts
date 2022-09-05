@@ -47,6 +47,22 @@ test.describe.parallel('test262', () => {
             await page.exposeFunction('done', details => {
                 resolve(details);
             });
+            await page.addInitScript(() => {
+                (function () {
+                    function installAPI(global) {
+                        return global.$262 = {
+                            createRealm() {
+                                const iframe = global.document.createElement('iframe');
+                                global.document.body.appendChild(iframe);
+                                return installAPI(iframe.contentWindow);
+                            },
+                            global
+                        };
+                    }
+
+                    installAPI(globalThis);
+                })()
+            });
 
             runnerPage.getSetupScript = () => ``;
             runnerPage.getHarnessScripts = () => testDifinition.harness;
