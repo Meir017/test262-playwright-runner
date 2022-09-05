@@ -16,6 +16,7 @@ interface TestSpec {
     info: string;
     includes: string[];
     features: string[];
+    flags: string[];
 }
 
 test.describe.parallel('test262', () => {
@@ -33,6 +34,8 @@ test.describe.parallel('test262', () => {
                 test.info().annotations.push({ type: 'includes', description: `[${testDifinition.spec.includes.join(',')}]` });
             if (testDifinition.spec.features)
                 test.info().annotations.push({ type: 'features', description: `[${testDifinition.spec.features.join(',')}]` });
+            if (testDifinition.spec.flags)
+                test.info().annotations.push({ type: 'flags', description: `[${testDifinition.spec.flags.join(',')}]` });
 
             test.info().annotations.push({ type: 'code', description: testDifinition.code });
 
@@ -78,10 +81,17 @@ function parseTestDefinition(testCase) {
 
     const dependencies = ['assert.js', 'sta.js', ...(spec.includes || [])]
 
+    let code = testDifinition.substring(startOfCode);
+
+    if (spec.flags?.includes('onlyStrict')) {
+        code = `'use strict';` + code;
+    }
+
     return {
         raw: testDifinition,
         harness: dependencies.map(dependency => `<script id="harness/${dependency}">${test262['harness/' + dependency]}</script>`),
-        code: testDifinition.substring(startOfCode),
+        rawCode: testDifinition.substring(startOfCode),
+        code,
         spec
     }
 }
