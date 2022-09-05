@@ -49,14 +49,35 @@ test.describe.parallel('test262', () => {
             });
             await page.addInitScript(() => {
                 (function () {
+                    // taken from https://github.com/bakkot/test262-web-runner/blob/f7e97869c5341f5f6e115c164ed33952ce549146/main.js#L108-L137
                     function installAPI(global) {
                         return global.$262 = {
                             createRealm() {
                                 const iframe = global.document.createElement('iframe');
                                 global.document.body.appendChild(iframe);
+                                // TODO: can we remove this due to the addInitScript playwright hook?
                                 return installAPI(iframe.contentWindow);
                             },
-                            global
+                            evalScript(src) {
+                                const script = global.document.createElement('script');
+                                script.text = src;
+                                global.document.body.appendChild(script);
+                            },
+                            detachArrayBuffer(buffer) {
+                                if (typeof postMessage !== 'function') {
+                                    throw new Error('No method available to detach an ArrayBuffer');
+                                } else {
+                                    postMessage(null, '*', [buffer]);
+                                    /*
+                                      See https://html.spec.whatwg.org/multipage/comms.html#dom-window-postmessage
+                                      which calls https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclonewithtransfer
+                                      which calls https://html.spec.whatwg.org/multipage/infrastructure.html#transfer-abstract-op
+                                      which calls the DetachArrayBuffer abstract operation https://tc39.github.io/ecma262/#sec-detacharraybuffer
+                                    */
+                                }
+                            },
+                            global,
+                            IsHTMLDDA: global.document.all
                         };
                     }
 
