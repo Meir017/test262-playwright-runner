@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import * as test262 from '../resources/test262.json';
-import { test, testList } from './fixture';
+import { test, testList, ignoreTests } from './fixture';
 import * as YAML from 'yaml';
 
 interface TestOutput {
@@ -10,39 +10,55 @@ interface TestOutput {
 }
 
 interface TestSpec {
-    es6id: string;
+    es6id?: string;
+    esid?: string;
     description: string;
     info: string;
     includes: string[];
+    features: string[];
 }
 
 test.describe.parallel('test262', () => {
 
     for (const testCase of testList) {
         test(testCase, async ({ page, runnerUrl, runnerPage }) => {
+            if (ignoreTests.has(testCase))
+                test.fail();
+
             const testDifinition = parseTestDefinition(testCase);
-            test.info().annotations.push({
-                type: 'test spec',
-                description: testDifinition.raw,
+            test.info().annotations.push({ type: 'description', description: testDifinition.spec.description });
+            if (testDifinition.spec.es6id || testDifinition.spec.esid)
+                test.info().annotations.push({ type: 'esid', description: testDifinition.spec.es6id || testDifinition.spec.esid });
+            if (testDifinition.spec.includes)
+                test.info().annotations.push({ type: 'includes', description: `[${testDifinition.spec.includes.join(',')}]` });
+            if (testDifinition.spec.features)
+                test.info().annotations.push({ type: 'features', description: `[${testDifinition.spec.features.join(',')}]` });
+
+            test.info().annotations.push({ type: 'code', description: testDifinition.code });
+
+            let resolve, reject;
+            const testPassed = new Promise<TestOutput>((_resolve, _reject) => {
+                resolve = _resolve;
+                reject = _reject;
+            });
+            await page.exposeFunction('done', details => {
+                resolve(details);
             });
 
             runnerPage.getSetupScript = () => ``;
             runnerPage.getHarnessScripts = () => testDifinition.harness;
             runnerPage.getTestHtml = () => `
             <script>${testDifinition.code}</script>
-            <script>console.info('test-262-output', { passed: true });</script>`;
+            <script>done({ passed: true });</script>`;
 
             const [output]: [TestOutput, any] = await Promise.all([
                 Promise.race([
-                    page.waitForEvent('console', {
-                        predicate: message => message.text().startsWith('test-262-output'),
-                        timeout: 2500
-                    }).then(message => message.args()[1].jsonValue()),
+                    testPassed,
                     page.waitForEvent('pageerror').then(error => ({
                         passed: false,
                         message: error.message,
                         stack: error.stack
-                    }))
+                    }) as TestOutput)
                 ]),
                 page.goto(runnerUrl)
             ]);
@@ -65,6 +81,7 @@ function parseTestDefinition(testCase) {
     return {
         raw: testDifinition,
         harness: dependencies.map(dependency => `<script id="harness/${dependency}">${test262['harness/' + dependency]}</script>`),
-        code: testDifinition.substring(startOfCode)
+        code: testDifinition.substring(startOfCode),
+        spec
     }
 }

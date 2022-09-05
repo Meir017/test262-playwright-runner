@@ -23,7 +23,17 @@ function notImplemented<T>(name: string): () => T {
     };
 }
 
-export const testList = Object.keys(test262).filter(test => test.startsWith('test/built-ins/Function/length'));
+export const ignoreTests = new Set([
+    'test/built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js',
+    'test/built-ins/Function/prototype/toString/line-terminator-normalisation-CR-LF.js',
+    'test/built-ins/Function/prototype/toString/built-in-function-object.js'
+]);
+const includeTests = [
+    'test/built-ins/Function/prototype/toString/'
+];
+export const testList = Object.keys(test262)
+    .filter(test => includeTests.some(includeTest => test.startsWith(includeTest)));
+
 export const test = testBase.extend<TestFixture>({
     runnerUrl: async ({ }, use) => use(runnerUrl),
     runnerPage: async ({ }, use) => {
