@@ -9,6 +9,10 @@ interface TestSpec {
     includes: string[];
     features: string[];
     flags: string[];
+    negative?: {
+        phase: string;
+        type: string;
+    };
 }
 
 export function parseTestDefinition(testCase) {
@@ -28,11 +32,16 @@ export function parseTestDefinition(testCase) {
         code = `'use strict';` + code;
     }
 
+    const isModule = spec.flags?.includes('module');
+    const isAsync = spec.flags?.includes('async');
+
     return {
         raw: testDifinition,
         harness: dependencies.map(dependency => `<script id="harness/${dependency}">${test262['harness/' + dependency]}</script>`),
         rawCode: testDifinition.substring(startOfCode),
         code,
-        spec
+        spec,
+        isModule,
+        isAsync,
     }
 }

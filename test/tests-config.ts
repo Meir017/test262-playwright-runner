@@ -72,12 +72,13 @@ const ignoreTests: Record<BrowserName, Set<string>> = {
 };
 
 const includeTests = [
-    'test/built-ins/Function/prototype/'
+    'test/built-ins/Function/prototype/',
+    'test/language/module-code/top-level-await/',
 ];
 
 export function getTestCases() {
     return Object.keys(test262)
-        .filter(test => includeTests.some(includeTest => test.startsWith(includeTest)));
+        .filter(test => !test.includes('_FIXTURE') && includeTests.some(includeTest => test.startsWith(includeTest)));
 }
 
 export function shouldFail(browserName: BrowserName, testCase: string) {
