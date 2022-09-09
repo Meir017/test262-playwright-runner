@@ -29,7 +29,7 @@ export const ignoreTests = new Set([
     'test/built-ins/Function/prototype/toString/built-in-function-object.js'
 ]);
 const includeTests = [
-    'test/built-ins/Function/prototype/apply'
+    'test/built-ins/Function/prototype'
 ];
 export const testList = Object.keys(test262)
     .filter(test => includeTests.some(includeTest => test.startsWith(includeTest)));
