@@ -4,7 +4,7 @@ import { parseTestDefinition } from './parser';
 import { getTestCases, shouldFail } from './tests-config';
 
 interface TestOutput {
-    passed: boolean;
+    failed: boolean;
     message: string;
     stack: string;
 }
@@ -27,14 +27,23 @@ test.describe.parallel('test262', () => {
                 test.info().annotations.push({ type: 'flags', description: `[${testDifinition.spec.flags.join(',')}]` });
 
             test.info().annotations.push({ type: 'code', description: testDifinition.code });
+            if (testDifinition.spec.negative) {
+                test.info().annotations.push({ type: 'reason', description: 'nagative test are not supported yet' });
+                test.info().skip();
+            }
+
+            if (testDifinition.code.includes('import ') || testDifinition.code.includes('import(')) {
+                test.info().annotations.push({ type: 'reason', description: 'tests with import statements are not supported yet' });
+                test.info().skip();
+            }
 
             let resolve, reject;
             const testPassed = new Promise<TestOutput>((_resolve, _reject) => {
                 resolve = _resolve;
                 reject = _reject;
             });
-            await page.exposeFunction('done', details => {
-                resolve(details);
+            await page.exposeFunction('$DONE', details => {
+                resolve();
             });
             await page.addInitScript(() => {
                 (function () {
@@ -77,20 +86,19 @@ test.describe.parallel('test262', () => {
             runnerPage.getSetupScript = () => ``;
             runnerPage.getHarnessScripts = () => testDifinition.harness;
             runnerPage.getTestHtml = () => `
-            <script>${testDifinition.code}; done({ passed: true });</script>`;
-
+            <script type="${testDifinition.isModule ? 'module' : 'application/javascript'}">${testDifinition.code}; ${testDifinition.isAsync ? '' : '$DONE();'}</script>`;
             const [output]: [TestOutput, any] = await Promise.all([
                 Promise.race([
                     testPassed,
                     page.waitForEvent('pageerror').then(error => ({
-                        passed: false,
+                        failed: true,
                         message: error.message,
                         stack: error.stack
                     }) as TestOutput)
                 ]),
                 page.goto(runnerUrl)
             ]);
-            expect(output.passed, output.message + '\nstack:\n' + output.stack).toBeTruthy();
+            expect(!output?.failed, output?.message + '\nstack:\n' + output?.stack).toBeTruthy();
         });
     }
 });
