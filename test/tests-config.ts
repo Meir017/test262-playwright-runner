@@ -10,7 +10,10 @@ const ignoreTests: Record<BrowserName, Set<string>> = {
     ]),
     firefox: new Set([
         'test/built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js',
-        'test/built-ins/Function/prototype/toString/built-in-function-object.js'
+        'test/built-ins/Function/prototype/toString/line-terminator-normalisation-CR-LF.js', // TODO - fix this
+        'test/built-ins/Function/prototype/toString/built-in-function-object.js',
+        'test/built-ins/Function/prototype/restricted-property-caller.js',
+        'test/built-ins/Function/prototype/restricted-property-arguments.js'
     ]),
     webkit: new Set([
         'test/built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js',
