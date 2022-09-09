@@ -9,8 +9,12 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        browser: [chromium, firefox, webkit]
-    runs-on: ubuntu-latest
+        browser: [chromium, firefox]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+        - browser: webkit
+          os: macos-latest
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
