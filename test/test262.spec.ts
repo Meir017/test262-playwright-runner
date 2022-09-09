@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
-import { test, testList, ignoreTests } from './fixture';
+import { test } from './fixture';
 import { parseTestDefinition } from './parser';
+import { getTestCases, shouldFail } from './tests-config';
 
 interface TestOutput {
     passed: boolean;
@@ -9,10 +10,9 @@ interface TestOutput {
 }
 
 test.describe.parallel('test262', () => {
-
-    for (const testCase of testList) {
-        test(testCase, async ({ page, runnerUrl, runnerPage }) => {
-            if (ignoreTests.has(testCase))
+    for (const testCase of getTestCases()) {
+        test(testCase, async ({ browserName, page, runnerUrl, runnerPage }) => {
+            if (shouldFail(browserName, testCase))
                 test.fail();
 
             const testDifinition = parseTestDefinition(testCase);
@@ -77,8 +77,7 @@ test.describe.parallel('test262', () => {
             runnerPage.getSetupScript = () => ``;
             runnerPage.getHarnessScripts = () => testDifinition.harness;
             runnerPage.getTestHtml = () => `
-            <script>${testDifinition.code}</script>
-            <script>done({ passed: true });</script>`;
+            <script>${testDifinition.code}; done({ passed: true });</script>`;
 
             const [output]: [TestOutput, any] = await Promise.all([
                 Promise.race([
