@@ -15,7 +15,6 @@ interface TestFixture {
 }
 
 const testRunnerInMemoryDomain = 'playwright.test262.runner';
-const runnerUrl = `https://${testRunnerInMemoryDomain}/test262.html`;
 
 function notImplemented<T>(name: string): () => T {
     return () => {
@@ -23,19 +22,8 @@ function notImplemented<T>(name: string): () => T {
     };
 }
 
-export const ignoreTests = new Set([
-    'test/built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js',
-    'test/built-ins/Function/prototype/toString/line-terminator-normalisation-CR-LF.js',
-    'test/built-ins/Function/prototype/toString/built-in-function-object.js'
-]);
-const includeTests = [
-    'test/built-ins/Function/prototype'
-];
-export const testList = Object.keys(test262)
-    .filter(test => includeTests.some(includeTest => test.startsWith(includeTest)));
-
 export const test = testBase.extend<TestFixture>({
-    runnerUrl: async ({ }, use) => use(runnerUrl),
+    runnerUrl: async ({ }, use) => use(`https://${testRunnerInMemoryDomain}/test262.html`),
     runnerPage: async ({ }, use) => {
         await use({
             getSetupScript: notImplemented('getSetupScript'),
