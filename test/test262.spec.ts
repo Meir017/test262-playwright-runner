@@ -11,7 +11,7 @@ interface TestOutput {
 
 test.describe.parallel('test262', () => {
     for (const testCase of getTestCases()) {
-        test(testCase, async ({ browserName, page, runnerUrl, runnerPage }) => {
+        test(testCase, async ({ browserName, page, buildRunnerUrl, runnerPage }) => {
             if (shouldFail(browserName, testCase))
                 test.fail();
 
@@ -29,11 +29,6 @@ test.describe.parallel('test262', () => {
             test.info().annotations.push({ type: 'code', description: testDifinition.code });
             if (testDifinition.spec.negative) {
                 test.info().annotations.push({ type: 'reason', description: 'nagative test are not supported yet' });
-                test.info().skip();
-            }
-
-            if (testDifinition.code.includes('import ') || testDifinition.code.includes('import(')) {
-                test.info().annotations.push({ type: 'reason', description: 'tests with import statements are not supported yet' });
                 test.info().skip();
             }
 
@@ -96,7 +91,7 @@ test.describe.parallel('test262', () => {
                         stack: error.stack
                     }) as TestOutput)
                 ]),
-                page.goto(runnerUrl)
+                page.goto(buildRunnerUrl(testCase))
             ]);
             expect(!output?.failed, output?.message + '\nstack:\n' + output?.stack).toBeTruthy();
         });

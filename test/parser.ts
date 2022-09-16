@@ -15,7 +15,7 @@ interface TestSpec {
     };
 }
 
-export function parseTestDefinition(testCase) {
+export function parseTestDefinition(testCase: string) {
     const testDifinition = test262[testCase] as string;
 
     const specStart = '/*---';

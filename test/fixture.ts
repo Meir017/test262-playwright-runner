@@ -10,11 +10,12 @@ interface RunnerPageFunctions {
 }
 
 interface TestFixture {
-    runnerUrl: string;
+    domain: string;
+    buildRunnerUrl: (testCase: string) => string;
     runnerPage: RunnerPageFunctions;
 }
 
-const testRunnerInMemoryDomain = 'playwright.test262.runner';
+const testRunnerInMemoryDomain = '';
 
 function notImplemented<T>(name: string): () => T {
     return () => {
@@ -23,7 +24,13 @@ function notImplemented<T>(name: string): () => T {
 }
 
 export const test = testBase.extend<TestFixture>({
-    runnerUrl: async ({ }, use) => use(`https://${testRunnerInMemoryDomain}/test262.html`),
+    domain: 'playwright.test262.runner',
+
+    buildRunnerUrl: async ({ domain }, use) => use(testCase => {
+        const testPath = testCase.split('/');
+        const testName = testPath.pop();
+        return `https://${domain}/SYNTHETIC/${testPath.join('/')}/test262.html`;
+    }), // SYNTHETIC/test/language/module-code/blank.html
     runnerPage: async ({ }, use) => {
         await use({
             getSetupScript: notImplemented('getSetupScript'),
@@ -35,8 +42,8 @@ export const test = testBase.extend<TestFixture>({
         contextOptions.ignoreHTTPSErrors = true;
         await use(contextOptions);
     },
-    context: async ({ context, runnerUrl, runnerPage }, use) => {
-        await context.route(runnerUrl, route => route.fulfill({
+    context: async ({ context, runnerPage }, use) => {
+        await context.route(x => x.href.endsWith('test262.html'), route => route.fulfill({
             body: `<!DOCTYPE html>
             <html>
             <head>
@@ -53,8 +60,9 @@ export const test = testBase.extend<TestFixture>({
         }));
         await context.route(/test\/.*\.js/, async (route, request) => {
             const requestUri = new URL(request.url());
+            const testPath = requestUri.pathname.substring(requestUri.pathname.indexOf('SYNTHETIC/') + 'SYNTHETIC/'.length);
             await route.fulfill({
-                body: test262[requestUri.pathname],
+                body: test262[testPath],
                 contentType: 'application/javascript',
                 status: 200,
             });
