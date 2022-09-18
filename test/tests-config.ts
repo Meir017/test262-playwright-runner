@@ -73,7 +73,7 @@ const ignoreTests: Record<BrowserName, Set<string>> = {
 
 const includeTests = [
     'test/built-ins/Function/prototype/',
-    'test/language/module-code/top-level-await/',
+    'test/language/module-code/',
 ];
 
 export function getTestCases() {

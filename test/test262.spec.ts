@@ -32,6 +32,11 @@ test.describe.parallel('test262', () => {
                 test.info().skip();
             }
 
+            if (testDifinition.isRaw) {
+                test.info().annotations.push({ type: 'reason', description: 'raw test are not supported yet' });
+                test.info().skip();
+            }
+
             let resolve, reject;
             const testPassed = new Promise<TestOutput>((_resolve, _reject) => {
                 resolve = _resolve;
@@ -80,8 +85,10 @@ test.describe.parallel('test262', () => {
 
             runnerPage.getSetupScript = () => ``;
             runnerPage.getHarnessScripts = () => testDifinition.harness;
-            runnerPage.getTestHtml = () => `
-            <script type="${testDifinition.isModule ? 'module' : 'application/javascript'}">${testDifinition.code}; ${testDifinition.isAsync ? '' : '$DONE();'}</script>`;
+            runnerPage.getTestHtml = () => testDifinition.isModule ?
+                `<script type="module" src="./${testCase.split('/').pop()}" onload="$DONE();"></script>` :
+                `<script type="application/javascript">${testDifinition.code}; ${testDifinition.isAsync ? '' : '$DONE();'}</script>`;
+
             const [output]: [TestOutput, any] = await Promise.all([
                 Promise.race([
                     testPassed,

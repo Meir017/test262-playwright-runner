@@ -34,6 +34,7 @@ export function parseTestDefinition(testCase: string) {
 
     const isModule = spec.flags?.includes('module');
     const isAsync = spec.flags?.includes('async');
+    const isRaw = spec.flags?.includes('raw');
 
     return {
         raw: testDifinition,
@@ -43,5 +44,6 @@ export function parseTestDefinition(testCase: string) {
         spec,
         isModule,
         isAsync,
+        isRaw,
     }
 }
