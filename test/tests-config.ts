@@ -68,12 +68,21 @@ const ignoreTests: Record<BrowserName, Set<string>> = {
         'test/built-ins/Function/prototype/toString/setter-class-statement.js',
         'test/built-ins/Function/prototype/toString/setter-object.js',
         'test/built-ins/Function/prototype/toString/unicode.js',
+        'test/language/module-code/import-assertion-empty.js',
+        'test/language/module-code/import-assertion-key-identifiername.js',
+        'test/language/module-code/import-assertion-key-string-double.js',
+        'test/language/module-code/import-assertion-key-string-single.js',
+        'test/language/module-code/import-assertion-many.js',
+        'test/language/module-code/import-assertion-newlines.js',
+        'test/language/module-code/import-assertion-trlng-comma.js',
+        'test/language/module-code/import-assertion-value-string-double.js',
+        'test/language/module-code/import-assertion-value-string-single.js',
     ])
 };
 
 const includeTests = [
     'test/built-ins/Function/prototype/',
-    'test/language/module-code/top-level-await/',
+    'test/language/module-code/',
 ];
 
 export function getTestCases() {
