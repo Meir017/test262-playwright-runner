@@ -32,11 +32,6 @@ test.describe.parallel('test262', () => {
                 test.info().skip();
             }
 
-            if (testDifinition.isRaw) {
-                test.info().annotations.push({ type: 'reason', description: 'raw test are not supported yet' });
-                test.info().skip();
-            }
-
             let resolve, reject;
             const testPassed = new Promise<TestOutput>((_resolve, _reject) => {
                 resolve = _resolve;

@@ -24,8 +24,6 @@ export function parseTestDefinition(testCase: string) {
     const testSpec = testDifinition.substring(testDifinition.indexOf(specStart) + specStart.length, testDifinition.indexOf(specEnd));
     const spec: TestSpec = YAML.parse(testSpec);
 
-    const dependencies = ['assert.js', 'sta.js', ...(spec.includes || [])]
-
     let code = testDifinition.substring(startOfCode);
 
     if (spec.flags?.includes('onlyStrict')) {
@@ -35,6 +33,8 @@ export function parseTestDefinition(testCase: string) {
     const isModule = spec.flags?.includes('module');
     const isAsync = spec.flags?.includes('async');
     const isRaw = spec.flags?.includes('raw');
+
+    const dependencies = [...(isRaw ? [] : ['assert.js', 'sta.js']), ...(spec.includes || [])]
 
     return {
         raw: testDifinition,
